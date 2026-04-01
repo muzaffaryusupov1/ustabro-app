@@ -7,6 +7,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import { colors, fonts, radii } from "../../lib/theme";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
@@ -17,10 +18,10 @@ interface ButtonProps extends PressableProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const COLORS = {
-  primary: { bg: "#2563EB", text: "#FFFFFF", border: "#2563EB" },
-  secondary: { bg: "#FFFFFF", text: "#2563EB", border: "#2563EB" },
-  ghost: { bg: "transparent", text: "#2563EB", border: "transparent" },
+const VARIANTS = {
+  primary: { bg: colors.primary, text: colors.onPrimary, pressed: colors.primaryFixedDim },
+  secondary: { bg: colors.surfaceContainerHigh, text: colors.primary, pressed: colors.surfaceContainerLow },
+  ghost: { bg: "transparent", text: colors.primary, pressed: colors.surfaceContainerLow },
 } as const;
 
 export function Button({
@@ -31,7 +32,7 @@ export function Button({
   style,
   ...rest
 }: ButtonProps) {
-  const colors = COLORS[variant];
+  const v = VARIANTS[variant];
   const isDisabled = disabled || loading;
 
   return (
@@ -40,18 +41,17 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         {
-          backgroundColor: colors.bg,
-          borderColor: colors.border,
-          opacity: isDisabled ? 0.5 : pressed ? 0.8 : 1,
+          backgroundColor: pressed ? v.pressed : v.bg,
+          opacity: isDisabled ? 0.5 : 1,
         },
         style,
       ]}
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={colors.text} />
+        <ActivityIndicator color={v.text} />
       ) : (
-        <Text style={[styles.text, { color: colors.text }]}>{title}</Text>
+        <Text style={[styles.text, { color: v.text }]}>{title}</Text>
       )}
     </Pressable>
   );
@@ -59,15 +59,14 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 56,
-    borderRadius: 12,
-    borderWidth: 1.5,
+    minHeight: 64,
+    borderRadius: radii.xl,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   text: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: "600",
   },
 });

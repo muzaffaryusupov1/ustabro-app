@@ -1,5 +1,6 @@
 import { Image, View, Text, StyleSheet } from "react-native";
 import { useState } from "react";
+import { colors, fonts } from "../../lib/theme";
 
 interface AvatarProps {
   uri?: string | null;
@@ -18,11 +19,11 @@ function getInitials(name?: string | null): string {
 }
 
 const BG_COLORS = [
-  "#2563EB",
+  colors.primary,
   "#7C3AED",
   "#DB2777",
   "#EA580C",
-  "#16A34A",
+  colors.secondary,
   "#0891B2",
 ];
 
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   initials: {
-    color: "#FFFFFF",
-    fontWeight: "700",
+    color: colors.onPrimary,
+    fontFamily: fonts.bold,
   },
 });

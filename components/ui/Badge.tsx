@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+import { colors, fonts, radii } from "../../lib/theme";
 
 type OrderStatus =
   | "pending"
@@ -14,12 +15,12 @@ interface BadgeProps {
 }
 
 const STATUS_COLORS: Record<OrderStatus, { bg: string; text: string }> = {
-  pending: { bg: "#FEF3C7", text: "#92400E" },
-  accepted: { bg: "#DBEAFE", text: "#1E40AF" },
-  on_the_way: { bg: "#E0E7FF", text: "#3730A3" },
-  arrived: { bg: "#D1FAE5", text: "#065F46" },
-  completed: { bg: "#D1FAE5", text: "#065F46" },
-  cancelled: { bg: "#FEE2E2", text: "#991B1B" },
+  pending: { bg: colors.statusPendingBg, text: colors.statusPendingText },
+  accepted: { bg: colors.statusAcceptedBg, text: colors.statusAcceptedText },
+  on_the_way: { bg: colors.statusOnTheWayBg, text: colors.statusOnTheWayText },
+  arrived: { bg: colors.statusArrivedBg, text: colors.statusArrivedText },
+  completed: { bg: colors.statusCompletedBg, text: colors.statusCompletedText },
+  cancelled: { bg: colors.statusCancelledBg, text: colors.statusCancelledText },
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -32,25 +33,25 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 export function Badge({ status, label }: BadgeProps) {
-  const colors = STATUS_COLORS[status];
+  const c = STATUS_COLORS[status];
   const displayLabel = label ?? STATUS_LABELS[status];
 
   return (
-    <View style={[styles.badge, { backgroundColor: colors.bg }]}>
-      <Text style={[styles.text, { color: colors.text }]}>{displayLabel}</Text>
+    <View style={[styles.badge, { backgroundColor: c.bg }]}>
+      <Text style={[styles.text, { color: c.text }]}>{displayLabel}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.full,
     alignSelf: "flex-start",
   },
   text: {
+    fontFamily: fonts.semiBold,
     fontSize: 12,
-    fontWeight: "600",
   },
 });

@@ -1,5 +1,6 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { forwardRef } from "react";
+import { colors, fonts, radii } from "../../lib/theme";
 
 interface PhoneInputProps {
   value: string;
@@ -27,7 +28,7 @@ export const PhoneInput = forwardRef<TextInput, PhoneInputProps>(
           keyboardType="number-pad"
           maxLength={9}
           placeholder="90 123 45 67"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.onSurfacePlaceholder}
           editable={editable}
         />
       </View>
@@ -38,29 +39,25 @@ export const PhoneInput = forwardRef<TextInput, PhoneInputProps>(
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    borderWidth: 1.5,
-    borderColor: "#D1D5DB",
-    borderRadius: 12,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: radii.xl,
     overflow: "hidden",
   },
   prefix: {
     justifyContent: "center",
     paddingHorizontal: 16,
-    backgroundColor: "#F3F4F6",
-    borderRightWidth: 1,
-    borderRightColor: "#D1D5DB",
+    backgroundColor: colors.surfaceContainerLow,
   },
   prefixText: {
+    fontFamily: fonts.semiBold,
     fontSize: 20,
-    fontWeight: "600",
-    color: "#374151",
+    color: colors.onSurface,
   },
   input: {
     flex: 1,
+    fontFamily: fonts.medium,
     fontSize: 20,
-    fontWeight: "500",
-    color: "#111827",
+    color: colors.onSurface,
     paddingHorizontal: 16,
     paddingVertical: 16,
   },

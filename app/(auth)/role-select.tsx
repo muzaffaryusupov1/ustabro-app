@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../lib/supabase";
 import { useAuthStore } from "../../store/authStore";
+import { colors, fonts, spacing, radii, shadows } from "../../lib/theme";
 import { t } from "../../i18n";
 
 type Role = "customer" | "master";
@@ -82,42 +83,41 @@ export default function RoleSelectScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     justifyContent: "center",
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: spacing[6],
+    gap: spacing[6],
   },
   title: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
+    color: colors.onSurface,
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   card: {
-    backgroundColor: "#F9FAFB",
-    borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 16,
-    padding: 24,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: radii.xl,
+    padding: spacing[6],
     alignItems: "center",
+    ...shadows.ambient,
   },
   cardPressed: {
-    borderColor: "#2563EB",
-    backgroundColor: "#EFF6FF",
+    backgroundColor: colors.surfaceContainerLow,
   },
   cardIcon: {
     fontSize: 40,
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   cardTitle: {
+    fontFamily: fonts.bold,
     fontSize: 20,
-    fontWeight: "700",
-    color: "#111827",
+    color: colors.onSurface,
     marginBottom: 4,
   },
   cardDesc: {
+    fontFamily: fonts.regular,
     fontSize: 14,
-    color: "#6B7280",
+    color: colors.onSurfaceMuted,
   },
 });

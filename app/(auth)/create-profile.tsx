@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import { useAuthStore } from "../../store/authStore";
 import { updateProfile, updateMasterProfile, uploadAvatar } from "../../services/profiles";
 import { Button } from "../../components/ui/Button";
+import { colors, fonts, spacing, radii, shadows } from "../../lib/theme";
 import { t } from "../../i18n";
 import { supabase } from "../../lib/supabase";
 
@@ -85,7 +86,6 @@ export default function CreateProfileScreen() {
         });
       }
 
-      // Refresh profile in store
       const { data } = await supabase
         .from("profiles")
         .select("id, phone, full_name, avatar_url, role")
@@ -132,7 +132,7 @@ export default function CreateProfileScreen() {
         value={name}
         onChangeText={setName}
         placeholder={t("auth.profile.full_name_placeholder")}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor={colors.onSurfacePlaceholder}
         editable={!loading}
       />
 
@@ -181,22 +181,22 @@ export default function CreateProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
   },
   content: {
-    padding: 24,
+    padding: spacing[6],
     paddingTop: 60,
   },
   title: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
+    color: colors.onSurface,
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   avatarPicker: {
     alignSelf: "center",
-    marginBottom: 32,
+    marginBottom: spacing[8],
   },
   avatarImage: {
     width: 100,
@@ -207,66 +207,61 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#F3F4F6",
-    borderWidth: 2,
-    borderColor: "#D1D5DB",
-    borderStyle: "dashed",
+    backgroundColor: colors.surfaceContainerHigh,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarPlaceholderText: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    color: "#6B7280",
+    color: colors.onSurfaceMuted,
     textAlign: "center",
   },
   label: {
+    fontFamily: fonts.semiBold,
     fontSize: 15,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
+    color: colors.onSurfaceVariant,
+    marginBottom: spacing[2],
   },
   hint: {
+    fontFamily: fonts.regular,
     fontSize: 13,
-    color: "#9CA3AF",
-    marginBottom: 12,
+    color: colors.onSurfacePlaceholder,
+    marginBottom: spacing[3],
   },
   input: {
-    borderWidth: 1.5,
-    borderColor: "#D1D5DB",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: radii.xl,
+    padding: spacing[4],
+    fontFamily: fonts.medium,
     fontSize: 16,
-    color: "#111827",
-    backgroundColor: "#F9FAFB",
-    marginBottom: 24,
+    color: colors.onSurface,
+    marginBottom: spacing[6],
   },
   chips: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
-    marginBottom: 32,
+    marginBottom: spacing[8],
   },
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: "#D1D5DB",
-    backgroundColor: "#F9FAFB",
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceContainerHigh,
   },
   chipSelected: {
-    borderColor: "#2563EB",
-    backgroundColor: "#EFF6FF",
+    backgroundColor: colors.secondaryContainer,
   },
   chipText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: "500",
-    color: "#374151",
+    color: colors.onSurfaceVariant,
   },
   chipTextSelected: {
-    color: "#2563EB",
+    color: colors.onSecondaryContainer,
   },
   saveBtn: {
-    marginTop: 8,
+    marginTop: spacing[2],
   },
 });

@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../lib/supabase";
+import { colors, fonts, spacing } from "../../lib/theme";
 import { Button } from "../../components/ui/Button";
 import { PhoneInput } from "../../components/ui/PhoneInput";
 import { t } from "../../i18n";
@@ -75,28 +76,28 @@ export default function PhoneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
   },
   content: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing[6],
   },
   logo: {
+    fontFamily: fonts.extraBold,
     fontSize: 36,
-    fontWeight: "800",
-    color: "#2563EB",
+    color: colors.primary,
     textAlign: "center",
     marginBottom: 8,
   },
   title: {
+    fontFamily: fonts.medium,
     fontSize: 18,
-    fontWeight: "500",
-    color: "#374151",
+    color: colors.onSurfaceVariant,
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: spacing[8],
   },
   button: {
-    marginTop: 24,
+    marginTop: spacing[6],
   },
 });

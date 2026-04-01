@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+import { colors, fonts } from "../lib/theme";
 
 export default function HomeScreen() {
   return (
@@ -13,10 +14,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
   },
   title: {
+    fontFamily: fonts.extraBold,
     fontSize: 24,
-    fontWeight: "bold",
+    color: colors.primary,
   },
 });

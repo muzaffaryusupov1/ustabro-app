@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
+import { colors, fonts } from "../../lib/theme";
 import { t } from "../../i18n";
 
 export default function MasterHomeScreen() {
@@ -14,10 +15,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
   },
   text: {
+    fontFamily: fonts.medium,
     fontSize: 18,
-    color: "#374151",
+    color: colors.onSurfaceVariant,
   },
 });

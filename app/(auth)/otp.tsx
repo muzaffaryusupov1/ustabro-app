@@ -10,6 +10,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import { supabase } from "../../lib/supabase";
 import { useAuthStore } from "../../store/authStore";
+import { colors, fonts, spacing, radii } from "../../lib/theme";
 import { t } from "../../i18n";
 
 const OTP_LENGTH = 6;
@@ -23,7 +24,6 @@ export default function OtpScreen() {
   const inputs = useRef<(TextInput | null)[]>([]);
   const initialize = useAuthStore((s) => s.initialize);
 
-  // Cooldown timer
   useEffect(() => {
     if (cooldown <= 0) return;
     const id = setInterval(() => setCooldown((c) => c - 1), 1000);
@@ -41,7 +41,6 @@ export default function OtpScreen() {
         inputs.current[index + 1]?.focus();
       }
 
-      // Auto-submit when all filled
       if (digit && index === OTP_LENGTH - 1 && next.every((d) => d)) {
         verify(next.join(""));
       }
@@ -80,7 +79,6 @@ export default function OtpScreen() {
       }
 
       await initialize();
-      // Auth guard in _layout.tsx handles navigation
     } catch {
       Alert.alert("", t("error.generic"));
     } finally {
@@ -151,32 +149,33 @@ export default function OtpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
   },
   content: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing[6],
   },
   title: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: "700",
-    color: "#111827",
+    color: colors.onSurface,
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
+    fontFamily: fonts.regular,
     fontSize: 15,
-    color: "#6B7280",
+    color: colors.onSurfaceMuted,
     textAlign: "center",
     marginBottom: 4,
   },
   phone: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
+    color: colors.onSurfaceVariant,
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: spacing[8],
   },
   boxes: {
     flexDirection: "row",
@@ -186,29 +185,26 @@ const styles = StyleSheet.create({
   box: {
     width: 48,
     height: 56,
-    borderWidth: 1.5,
-    borderColor: "#D1D5DB",
-    borderRadius: 12,
+    borderRadius: radii.md,
     fontSize: 24,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     textAlign: "center",
-    color: "#111827",
-    backgroundColor: "#F9FAFB",
+    color: colors.onSurface,
+    backgroundColor: colors.surfaceContainerHigh,
   },
   boxFilled: {
-    borderColor: "#2563EB",
-    backgroundColor: "#EFF6FF",
+    backgroundColor: colors.surfaceContainerLowest,
   },
   resendBtn: {
-    marginTop: 32,
+    marginTop: spacing[8],
     alignItems: "center",
   },
   resendText: {
+    fontFamily: fonts.semiBold,
     fontSize: 15,
-    fontWeight: "600",
-    color: "#2563EB",
+    color: colors.primary,
   },
   resendDisabled: {
-    color: "#9CA3AF",
+    color: colors.onSurfacePlaceholder,
   },
 });
