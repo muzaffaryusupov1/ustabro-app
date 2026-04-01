@@ -1,4 +1,25 @@
+import { decode } from "base64-arraybuffer";
 import { supabase } from "../lib/supabase";
+
+function readFileAsBase64(uri: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.onerror = reject;
+    xhr.responseType = "blob";
+    xhr.open("GET", uri, true);
+    xhr.send(null);
+  });
+}
 
 interface UpdateProfileInput {
   full_name: string;
@@ -31,15 +52,13 @@ export async function updateMasterProfile(
 }
 
 export async function uploadAvatar(userId: string, uri: string) {
-  const ext = uri.split(".").pop() ?? "jpg";
-  const path = `${userId}/avatar.${ext}`;
+  const path = `${userId}/avatar.jpg`;
 
-  const response = await fetch(uri);
-  const blob = await response.blob();
+  const base64 = await readFileAsBase64(uri);
 
   const { error } = await supabase.storage
     .from("avatars")
-    .upload(path, blob, { upsert: true, contentType: `image/${ext}` });
+    .upload(path, decode(base64), { upsert: true, contentType: "image/jpeg" });
 
   if (error) throw error;
 

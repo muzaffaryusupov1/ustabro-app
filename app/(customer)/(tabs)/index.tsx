@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -17,12 +17,22 @@ const CATEGORY_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name
 };
 
 export default function CustomerHomeScreen() {
-  const { data: categories } = useCategories();
-  const { data: masters, isLoading: mastersLoading } = useMasters();
+  const { data: categories, refetch: refetchCategories } = useCategories();
+  const { data: masters, isLoading: mastersLoading, refetch: refetchMasters, isRefetching } = useMasters();
+
+  const onRefresh = () => {
+    refetchCategories();
+    refetchMasters();
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.primary} />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoRow}>

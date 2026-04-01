@@ -16,6 +16,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { colors, fonts, spacing, radii, shadows } from "../../lib/theme";
 import { Button } from "../../components/ui/Button";
 import { t } from "../../i18n";
+import { useAuthStore } from "../../store/authStore";
+import { createOrder, uploadOrderPhotos } from "../../services/orders";
+import { queryClient } from "../../lib/queryClient";
 
 export default function CreateRequestScreen() {
   const { categoryId, categoryName } = useLocalSearchParams<{
@@ -51,13 +54,43 @@ export default function CreateRequestScreen() {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const session = useAuthStore((s) => s.session);
+
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || !session?.user || !categoryId) return;
     setLoading(true);
-    // TODO: Upload photos, insert order row
-    Alert.alert("", "Buyurtma yuborildi!");
-    setLoading(false);
-    router.back();
+
+    try {
+      // 1. Create order first (to get order ID)
+      const order = await createOrder({
+        customer_id: session.user.id,
+        category_id: categoryId,
+        description: description.trim() || undefined,
+        address: address.trim() || undefined,
+      });
+
+      // 2. Upload photos if any
+      if (photos.length > 0) {
+        const photoUrls = await uploadOrderPhotos(order.id, photos);
+        // Update order with photo URLs
+        const { supabase } = await import("../../lib/supabase");
+        await supabase
+          .from("orders")
+          .update({ photo_urls: photoUrls })
+          .eq("id", order.id);
+      }
+
+      // 3. Invalidate queries so lists refresh
+      queryClient.invalidateQueries({ queryKey: ["pending-requests"] });
+
+      Alert.alert("", "Buyurtma muvaffaqiyatli yuborildi!");
+      router.back();
+    } catch (err) {
+      console.error("Order creation error:", err);
+      Alert.alert("", t("error.generic"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
