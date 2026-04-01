@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
@@ -6,6 +6,7 @@ import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
 export default function EarningsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
       {/* Header */}
       <View style={styles.header}>
         <Ionicons name="construct" size={22} color={colors.primary} />
@@ -68,6 +69,7 @@ export default function EarningsScreen() {
           </View>
         ))}
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -76,6 +78,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.surface,
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",

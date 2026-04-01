@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
@@ -11,73 +11,75 @@ export default function MasterProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profil</Text>
-        <Text style={styles.headerSub}>Usta Top</Text>
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profil</Text>
+          <Text style={styles.headerSub}>Usta Top</Text>
+        </View>
 
-      {/* Profile card */}
-      <View style={styles.profileCard}>
-        <Avatar uri={profile?.avatar_url} name={profile?.full_name} size={80} />
-        <Text style={styles.name}>{profile?.full_name ?? "Foydalanuvchi"}</Text>
-        <Text style={styles.phone}>{profile?.phone}</Text>
+        {/* Profile card */}
+        <View style={styles.profileCard}>
+          <Avatar uri={profile?.avatar_url} name={profile?.full_name} size={80} />
+          <Text style={styles.name}>{profile?.full_name ?? "Foydalanuvchi"}</Text>
+          <Text style={styles.phone}>{profile?.phone}</Text>
 
-        {/* Stats */}
-        <View style={styles.stats}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>BUYURTMALAR</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>4.9</Text>
-            <Text style={styles.statLabel}>REYTING</Text>
+          {/* Stats */}
+          <View style={styles.stats}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>12</Text>
+              <Text style={styles.statLabel}>BUYURTMALAR</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>4.9</Text>
+              <Text style={styles.statLabel}>REYTING</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Menu */}
-      <View style={styles.menu}>
-        {[
-          { icon: "document-text-outline" as const, label: "Mening buyurtmalarim" },
-          { icon: "list-outline" as const, label: "To'lovlar" },
-          { icon: "settings-outline" as const, label: "Sozlamalar" },
-        ].map((item, i) => (
-          <Pressable
-            key={i}
-            style={({ pressed }) => [
-              styles.menuItem,
-              pressed && { backgroundColor: colors.surfaceContainerLow },
-            ]}
-          >
-            <Ionicons name={item.icon} size={22} color={colors.primary} />
-            <Text style={styles.menuText}>{item.label}</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.onSurfacePlaceholder} />
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Master mode badge */}
-      <View style={styles.masterBadge}>
-        <Ionicons name="construct-outline" size={20} color={colors.primary} />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.masterBadgeTitle}>Usta sifatida ishlash</Text>
-          <Text style={styles.masterBadgeDesc}>Siz usta sifatida bog'lang</Text>
+        {/* Menu */}
+        <View style={styles.menu}>
+          {[
+            { icon: "document-text-outline" as const, label: "Mening buyurtmalarim" },
+            { icon: "list-outline" as const, label: "To'lovlar" },
+            { icon: "settings-outline" as const, label: "Sozlamalar" },
+          ].map((item, i) => (
+            <Pressable
+              key={i}
+              style={({ pressed }) => [
+                styles.menuItem,
+                pressed && { backgroundColor: colors.surfaceContainerLow },
+              ]}
+            >
+              <Ionicons name={item.icon} size={22} color={colors.primary} />
+              <Text style={styles.menuText}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.onSurfacePlaceholder} />
+            </Pressable>
+          ))}
         </View>
-      </View>
 
-      {/* Sign out */}
-      <Pressable
-        style={({ pressed }) => [
-          styles.signOutBtn,
-          pressed && { backgroundColor: colors.surfaceContainerLow },
-        ]}
-        onPress={signOut}
-      >
-        <Ionicons name="log-out-outline" size={20} color={colors.error} />
-        <Text style={styles.signOutText}>{t("profile.sign_out")}</Text>
-      </Pressable>
+        {/* Master mode badge */}
+        <View style={styles.masterBadge}>
+          <Ionicons name="construct-outline" size={20} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.masterBadgeTitle}>Usta sifatida ishlash</Text>
+            <Text style={styles.masterBadgeDesc}>Siz usta sifatida bog'lang</Text>
+          </View>
+        </View>
+
+        {/* Sign out */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.signOutBtn,
+            pressed && { backgroundColor: colors.surfaceContainerLow },
+          ]}
+          onPress={signOut}
+        >
+          <Ionicons name="log-out-outline" size={20} color={colors.error} />
+          <Text style={styles.signOutText}>{t("profile.sign_out")}</Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -86,6 +88,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.surface,
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   header: {
     flexDirection: "row",

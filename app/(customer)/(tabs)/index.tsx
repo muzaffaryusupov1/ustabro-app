@@ -1,11 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, FlatList } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
 import { useCategories } from "../../../hooks/useCategories";
+import { useMasters } from "../../../hooks/useMasters";
 import { Avatar } from "../../../components/ui/Avatar";
-import { t } from "../../../i18n";
 
 const CATEGORY_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name"]> = {
   "flash-outline": "flash-outline",
@@ -18,6 +18,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name
 
 export default function CustomerHomeScreen() {
   const { data: categories } = useCategories();
+  const { data: masters, isLoading: mastersLoading } = useMasters();
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -45,7 +46,7 @@ export default function CustomerHomeScreen() {
         {/* Categories */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("home.cta") === "Usta Chaqirish" ? "Xizmat turlari" : "Xizmat turlari"}</Text>
+            <Text style={styles.sectionTitle}>Xizmat turlari</Text>
             <Pressable onPress={() => router.push("/(customer)/categories")}>
               <Text style={styles.seeAll}>Hammasi</Text>
             </Pressable>
@@ -89,27 +90,40 @@ export default function CustomerHomeScreen() {
             </Pressable>
           </View>
 
-          {/* Placeholder masters */}
-          {[1, 2].map((i) => (
-            <View key={i} style={styles.masterCard}>
-              <Avatar name={i === 1 ? "Olimjon aka" : "Shavkat Karimov"} size={48} />
-              <View style={styles.masterInfo}>
-                <Text style={styles.masterName}>
-                  {i === 1 ? "Olimjon aka" : "Shavkat Karimov"}
-                </Text>
-                <Text style={styles.masterSkill}>
-                  {i === 1 ? "Elektrik · 5 yil tajriba" : "Santexnik · 8 yil tajriba"}
-                </Text>
-                <View style={styles.ratingRow}>
-                  <Ionicons name="star" size={14} color="#F59E0B" />
-                  <Text style={styles.ratingText}>{i === 1 ? "4.8" : "4.6"}</Text>
-                  <Text style={styles.distanceText}>
-                    {i === 1 ? "1.2 km uzoqlikda" : "2.5 km uzoqlikda"}
+          {mastersLoading ? (
+            <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }} />
+          ) : (masters ?? []).length === 0 ? (
+            <Text style={styles.emptyText}>Hozircha ustalar topilmadi</Text>
+          ) : (
+            (masters ?? []).map((master) => (
+              <View key={master.id} style={styles.masterCard}>
+                <Avatar uri={master.avatar_url} name={master.full_name} size={48} />
+                <View style={styles.masterInfo}>
+                  <Text style={styles.masterName}>
+                    {master.full_name ?? "Usta"}
                   </Text>
+                  <Text style={styles.masterSkill}>
+                    {master.skills.slice(0, 2).join(" · ")}
+                    {master.experience_years > 0 ? ` · ${master.experience_years} yil` : ""}
+                  </Text>
+                  <View style={styles.ratingRow}>
+                    <Ionicons name="star" size={14} color="#F59E0B" />
+                    <Text style={styles.ratingText}>
+                      {Number(master.rating).toFixed(1)}
+                    </Text>
+                    <Text style={styles.reviewCount}>
+                      {master.review_count} ta sharh
+                    </Text>
+                    {master.address && (
+                      <Text style={styles.distanceText}>
+                        · {master.address}
+                      </Text>
+                    )}
+                  </View>
                 </View>
               </View>
-            </View>
-          ))}
+            ))
+          )}
         </View>
 
         <View style={{ height: 24 }} />
@@ -138,8 +152,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: colors.primary,
   },
-
-  // Hero CTA
   heroCta: {
     marginHorizontal: spacing[6],
     backgroundColor: colors.primary,
@@ -156,8 +168,6 @@ const styles = StyleSheet.create({
     color: colors.onPrimary,
     letterSpacing: 1,
   },
-
-  // Sections
   section: {
     marginBottom: spacing[6],
   },
@@ -178,8 +188,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
   },
-
-  // Category row
   categoryRow: {
     paddingHorizontal: spacing[6],
     gap: 12,
@@ -204,8 +212,6 @@ const styles = StyleSheet.create({
     color: colors.onSurfaceVariant,
     textAlign: "center",
   },
-
-  // Master cards
   masterCard: {
     flexDirection: "row",
     marginHorizontal: spacing[6],
@@ -241,10 +247,21 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.onSurface,
   },
+  reviewCount: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    color: colors.onSurfacePlaceholder,
+  },
   distanceText: {
     fontFamily: fonts.regular,
     fontSize: 12,
     color: colors.onSurfacePlaceholder,
-    marginLeft: 8,
+  },
+  emptyText: {
+    fontFamily: fonts.medium,
+    fontSize: 14,
+    color: colors.onSurfaceMuted,
+    textAlign: "center",
+    paddingTop: 20,
   },
 });
