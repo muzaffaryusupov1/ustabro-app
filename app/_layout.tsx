@@ -35,7 +35,10 @@ function AuthGate() {
         router.replace("/(auth)/role-select");
       }
     } else {
-      if (inAuthGroup) {
+      const inCorrectGroup =
+        (role === "customer" && segments[0] === "(customer)") ||
+        (role === "master" && segments[0] === "(master)");
+      if (!inCorrectGroup) {
         router.replace(
           role === "customer" ? "/(customer)/" : "/(master)/"
         );
