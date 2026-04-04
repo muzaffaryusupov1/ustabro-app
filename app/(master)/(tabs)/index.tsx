@@ -13,9 +13,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
 import { Avatar } from "../../../components/ui/Avatar";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../store/authStore";
 import { usePendingRequests } from "../../../hooks/usePendingRequests";
 import { acceptOrder } from "../../../services/orders";
+import { fetchMasterProfile } from "../../../services/profiles";
 import { queryClient } from "../../../lib/queryClient";
 
 function timeAgo(dateStr: string): string {
@@ -30,7 +32,15 @@ function timeAgo(dateStr: string): string {
 
 export default function MasterRequestsScreen() {
   const session = useAuthStore((s) => s.session);
-  const { data: requests, isLoading, refetch, isRefetching } = usePendingRequests();
+
+  const { data: masterProfile } = useQuery({
+    queryKey: ["master-profile", session?.user.id],
+    queryFn: () => fetchMasterProfile(session!.user.id),
+    enabled: !!session?.user.id,
+  });
+
+  const masterSkills = masterProfile?.skills as string[] | undefined;
+  const { data: requests, isLoading, refetch, isRefetching } = usePendingRequests(masterSkills);
 
   const handleAccept = (orderId: string) => {
     Alert.alert("Tasdiqlash", "Ushbu buyurtmani qabul qilasizmi?", [
@@ -100,13 +110,8 @@ export default function MasterRequestsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
-        <Ionicons name="construct" size={22} color={colors.primary} />
-        <Text style={styles.logoText}>Usta Top</Text>
-      </View>
-
       <Text style={styles.title}>Yangi buyurtmalar</Text>
-      <Text style={styles.subtitle}>Sizga yaqin hudududagi barcha so'rovlar</Text>
+      <Text style={styles.subtitle}>Sizning mutaxassisligingiz bo'yicha so'rovlar</Text>
 
       {isLoading ? (
         <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
@@ -133,8 +138,6 @@ export default function MasterRequestsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.surface },
-  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: spacing[6], paddingTop: spacing[2], gap: 8 },
-  logoText: { fontFamily: fonts.bold, fontSize: 18, color: colors.primary },
   title: { fontFamily: fonts.bold, fontSize: 24, color: colors.onSurface, paddingHorizontal: spacing[6], paddingTop: spacing[4] },
   subtitle: { fontFamily: fonts.regular, fontSize: 14, color: colors.onSurfaceMuted, paddingHorizontal: spacing[6], paddingBottom: spacing[4] },
   list: { paddingHorizontal: spacing[6], paddingBottom: 24, gap: spacing[4] },

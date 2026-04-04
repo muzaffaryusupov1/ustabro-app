@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchPendingRequests } from "../services/orders";
 
-export function usePendingRequests() {
+export function usePendingRequests(masterSkills?: string[]) {
   return useQuery({
-    queryKey: ["pending-requests"],
-    queryFn: fetchPendingRequests,
+    queryKey: ["pending-requests", masterSkills],
+    queryFn: () => fetchPendingRequests(masterSkills),
     refetchInterval: 30_000,
   });
 }

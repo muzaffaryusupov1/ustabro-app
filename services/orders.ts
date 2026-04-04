@@ -128,8 +128,8 @@ export async function cancelOrder(orderId: string) {
 
 // ─── Master — Pending Requests ───────────────────────────
 
-export async function fetchPendingRequests() {
-  const { data, error } = await supabase
+export async function fetchPendingRequests(masterSkills?: string[]) {
+  const query = supabase
     .from("orders")
     .select(`
       id, description, address, status, created_at,
@@ -139,7 +139,18 @@ export async function fetchPendingRequests() {
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
+  const { data, error } = await query;
+
   if (error) throw error;
+
+  // Filter by master skills — only show orders whose category matches
+  if (masterSkills && masterSkills.length > 0) {
+    return (data ?? []).filter((order: any) => {
+      const categoryName = order.category?.name_uz;
+      return categoryName && masterSkills.includes(categoryName);
+    });
+  }
+
   return data ?? [];
 }
 
