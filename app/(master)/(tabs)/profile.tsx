@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -26,7 +26,9 @@ import {
   updateMasterProfile,
   uploadAvatar,
 } from "../../../services/profiles";
-import { t } from "../../../i18n";
+import { useI18nStore, t } from "../../../i18n";
+import type BottomSheet from "@gorhom/bottom-sheet";
+import { LanguageBottomSheet } from "../../../components/ui/LanguageBottomSheet";
 
 const SKILL_OPTIONS = [
   "Elektrika",
@@ -39,7 +41,9 @@ const SKILL_OPTIONS = [
 
 export default function MasterProfileScreen() {
   const { profile, signOut, setProfile } = useAuthStore();
+  const locale = useI18nStore((s) => s.locale);
   const queryClient = useQueryClient();
+  const bottomSheetRef = useRef<BottomSheet>(null);
   const userId = profile?.id;
 
   const { data: masterProfile, isLoading: mpLoading } = useQuery({
@@ -337,6 +341,20 @@ export default function MasterProfileScreen() {
               </View>
             </View>
 
+            {/* Language switcher */}
+            <Pressable
+              style={({ pressed }) => [
+                styles.infoCard,
+                { flexDirection: "row", alignItems: "center" },
+                pressed && { backgroundColor: colors.surfaceContainerLow },
+              ]}
+              onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+            >
+              <Ionicons name="language-outline" size={18} color={colors.onSurfaceMuted} />
+              <Text style={[styles.infoRowText, { flex: 1 }]}>{t("language.title")}</Text>
+              <Text style={styles.langValue}>{locale === "uz" ? "🇺🇿 O'zbekcha" : "🇷🇺 Русский"}</Text>
+            </Pressable>
+
             {/* Sign out */}
             <Pressable
               style={({ pressed }) => [
@@ -351,6 +369,8 @@ export default function MasterProfileScreen() {
           </>
         )}
       </ScrollView>
+
+      <LanguageBottomSheet ref={bottomSheetRef} />
     </SafeAreaView>
   );
 }
@@ -507,11 +527,13 @@ const styles = StyleSheet.create({
   signOutBtn: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: spacing[6],
-    marginTop: spacing[2],
+    marginTop: spacing[4],
     padding: spacing[4],
     borderRadius: radii.xl,
-    gap: spacing[3],
+    gap: spacing[2],
   },
+  langValue: { fontFamily: fonts.medium, fontSize: 13, color: colors.onSurfaceMuted },
   signOutText: { fontFamily: fonts.semiBold, fontSize: 16, color: colors.error },
 });

@@ -135,6 +135,11 @@ export const uz: Record<string, string> = {
   "notif.completed": "Ish bajarildi! Baholang.",
   "notif.new_request": "Yangi buyurtma bor!",
 
+  // Language
+  "language.title": "Til / Язык",
+  "language.uz": "O'zbekcha",
+  "language.ru": "Русский",
+
   // General
   "general.cancel": "Bekor qilish",
   "general.confirm": "Tasdiqlash",

@@ -1,10 +1,13 @@
+import { useRef } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import type BottomSheet from "@gorhom/bottom-sheet";
 import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
 import { useAuthStore } from "../../../store/authStore";
+import { useI18nStore, t } from "../../../i18n";
 import { Avatar } from "../../../components/ui/Avatar";
-import { t } from "../../../i18n";
+import { LanguageBottomSheet } from "../../../components/ui/LanguageBottomSheet";
 
 const MENU_ITEMS: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
@@ -21,11 +24,13 @@ const MENU_ITEMS: {
 
 export default function ProfileScreen() {
   const { profile, signOut } = useAuthStore();
+  const locale = useI18nStore((s) => s.locale);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Profil</Text>
+        <Text style={styles.title}>{t("tab.profile")}</Text>
 
         {/* Profile card */}
         <View style={styles.profileCard}>
@@ -51,6 +56,21 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-forward" size={18} color={colors.onSurfacePlaceholder} />
             </Pressable>
           ))}
+
+          {/* Language switcher */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.menuItem,
+              pressed && { backgroundColor: colors.surfaceContainerLow },
+            ]}
+            onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+          >
+            <View style={styles.menuIconWrap}>
+              <Ionicons name="language-outline" size={20} color={colors.primary} />
+            </View>
+            <Text style={styles.menuText}>{t("language.title")}</Text>
+            <Text style={styles.langValue}>{locale === "uz" ? "🇺🇿 O'zbekcha" : "🇷🇺 Русский"}</Text>
+          </Pressable>
         </View>
 
         {/* Sign out */}
@@ -65,6 +85,8 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>{t("profile.sign_out")}</Text>
         </Pressable>
       </ScrollView>
+
+      <LanguageBottomSheet ref={bottomSheetRef} />
     </SafeAreaView>
   );
 }
@@ -122,6 +144,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     fontSize: 15,
     color: colors.onSurface,
+  },
+  langValue: {
+    fontFamily: fonts.medium,
+    fontSize: 13,
+    color: colors.onSurfaceMuted,
   },
   signOutBtn: {
     flexDirection: "row",
