@@ -27,7 +27,10 @@ interface UpdateProfileInput {
 }
 
 interface UpdateMasterProfileInput {
-  skills: string[];
+  skills?: string[];
+  bio?: string | null;
+  experience_years?: number;
+  is_available?: boolean;
 }
 
 export async function updateProfile(userId: string, data: UpdateProfileInput) {
@@ -49,6 +52,27 @@ export async function updateMasterProfile(
     .eq("id", userId);
 
   if (error) throw error;
+}
+
+export async function fetchMasterProfile(userId: string) {
+  const { data, error } = await supabase
+    .from("master_profiles")
+    .select("bio, skills, experience_years, is_available, rating, review_count, verified")
+    .eq("id", userId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchMasterOrderCount(masterId: string) {
+  const { count, error } = await supabase
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .eq("master_id", masterId);
+
+  if (error) throw error;
+  return count ?? 0;
 }
 
 export async function uploadAvatar(userId: string, uri: string) {

@@ -8,7 +8,6 @@ type TabIcon = React.ComponentProps<typeof Ionicons>["name"];
 const TAB_LIST: { name: string; title: string; icon: TabIcon; iconFocused: TabIcon }[] = [
   { name: "index", title: "Asosiy", icon: "home-outline", iconFocused: "home" },
   { name: "orders", title: "Buyurtmalar", icon: "document-text-outline", iconFocused: "document-text" },
-  { name: "messages", title: "Suhbat", icon: "chatbubble-outline", iconFocused: "chatbubble" },
   { name: "profile", title: "Profil", icon: "person-outline", iconFocused: "person" },
 ];
 

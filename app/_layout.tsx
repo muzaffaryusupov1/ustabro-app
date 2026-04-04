@@ -59,7 +59,6 @@ function AuthGate() {
 
 export default function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
-  const setSession = useAuthStore((s) => s.setSession);
 
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
@@ -74,15 +73,27 @@ export default function RootLayout() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        useAuthStore.setState({ profile: null, role: null });
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        // Fetch profile alongside session to avoid role=null flash
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, phone, full_name, avatar_url, role")
+          .eq("id", session.user.id)
+          .single();
+
+        useAuthStore.setState({
+          session,
+          profile: profile ?? null,
+          role: (profile?.role as "customer" | "master" | null) ?? null,
+        });
+      } else {
+        useAuthStore.setState({ session: null, profile: null, role: null });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [initialize, setSession]);
+  }, [initialize]);
 
   if (!fontsLoaded) {
     return (

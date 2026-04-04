@@ -33,7 +33,7 @@ export default function CategoriesScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>Usta Top</Text>
+        <Text style={styles.headerTitle}>Xizmat turlari</Text>
       </View>
 
       <ScrollView

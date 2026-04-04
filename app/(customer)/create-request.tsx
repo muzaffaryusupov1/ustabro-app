@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { colors, fonts, spacing, radii, shadows } from "../../lib/theme";
 import { Button } from "../../components/ui/Button";
@@ -30,8 +31,33 @@ export default function CreateRequestScreen() {
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   const canSubmit = photos.length > 0 || description.trim().length > 0;
+
+  const detectLocation = async () => {
+    setDetectingLocation(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("", "Joylashuvga ruxsat berilmadi");
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const [place] = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+      if (place) {
+        const parts = [place.street, place.district, place.city].filter(Boolean);
+        setAddress(parts.join(", ") || `${loc.coords.latitude.toFixed(4)}, ${loc.coords.longitude.toFixed(4)}`);
+      }
+    } catch {
+      Alert.alert("", "Joylashuvni aniqlab bo'lmadi");
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
 
   const pickPhoto = async () => {
     if (photos.length >= 3) {
@@ -82,9 +108,13 @@ export default function CreateRequestScreen() {
 
       // 3. Invalidate queries so lists refresh
       queryClient.invalidateQueries({ queryKey: ["pending-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-orders"] });
 
-      Alert.alert("", "Buyurtma muvaffaqiyatli yuborildi!");
-      router.back();
+      Alert.alert(
+        "So'rov yuborildi!",
+        "So'rovingiz barcha ustalarga yuborildi. Usta qabul qilganda sizga xabar beramiz."
+      );
+      router.replace("/(customer)/(tabs)/orders");
     } catch (err) {
       console.error("Order creation error:", err);
       Alert.alert("", t("error.generic"));
@@ -101,7 +131,6 @@ export default function CreateRequestScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         <Text style={styles.headerTitle}>Yangi buyurtma</Text>
-        <Text style={styles.headerSub}>Usta Top</Text>
       </View>
 
       <ScrollView
@@ -112,7 +141,7 @@ export default function CreateRequestScreen() {
         {/* Photo section */}
         <Text style={styles.sectionTitle}>{t("request.title")}</Text>
         <Text style={styles.subtitle}>
-          Ustalar ish vaziyatini to'g'ri baholash uchun{"\n"}barcha ma'lumotlarni kiriting.
+          Muammongizni tavsiflang — so'rovingiz barcha{"\n"}ustaLARga yuboriladi. Birinchi qabul qilgan{"\n"}usta siz bilan bog'lanadi.
         </Text>
 
         <Text style={styles.label}>Muammoni rasmga oling</Text>
@@ -163,16 +192,12 @@ export default function CreateRequestScreen() {
         />
 
         {/* Location detect */}
-        <Pressable style={styles.locationBtn}>
+        <Pressable style={styles.locationBtn} onPress={detectLocation} disabled={detectingLocation}>
           <Ionicons name="location-outline" size={20} color={colors.primary} />
-          <Text style={styles.locationText}>{t("request.detect_location")}</Text>
+          <Text style={styles.locationText}>
+            {detectingLocation ? "Aniqlanmoqda..." : t("request.detect_location")}
+          </Text>
         </Pressable>
-
-        {/* Map placeholder */}
-        <View style={styles.mapPlaceholder}>
-          <Ionicons name="map-outline" size={40} color={colors.onSurfacePlaceholder} />
-          <Text style={styles.mapText}>Xaritadan tanlash</Text>
-        </View>
 
         {/* Submit */}
         <Button
@@ -215,11 +240,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.onSurface,
     flex: 1,
-  },
-  headerSub: {
-    fontFamily: fonts.semiBold,
-    fontSize: 14,
-    color: colors.primary,
   },
   scroll: {
     flex: 1,
@@ -308,20 +328,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: 14,
     color: colors.primary,
-  },
-  mapPlaceholder: {
-    height: 140,
-    backgroundColor: colors.surfaceContainerHigh,
-    borderRadius: radii.xl,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginBottom: spacing[6],
-  },
-  mapText: {
-    fontFamily: fonts.medium,
-    fontSize: 13,
-    color: colors.onSurfacePlaceholder,
   },
   submitBtn: {
     marginBottom: spacing[3],

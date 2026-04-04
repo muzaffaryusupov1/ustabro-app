@@ -37,7 +37,7 @@ export default function CustomerHomeScreen() {
         <View style={styles.header}>
           <View style={styles.logoRow}>
             <Ionicons name="construct" size={24} color={colors.primary} />
-            <Text style={styles.logoText}>Usta Top</Text>
+            <Text style={styles.logoText}>UstaBro</Text>
           </View>
         </View>
 
@@ -50,7 +50,8 @@ export default function CustomerHomeScreen() {
           onPress={() => router.push("/(customer)/categories")}
         >
           <Ionicons name="construct" size={36} color={colors.onPrimary} style={{ opacity: 0.9 }} />
-          <Text style={styles.heroText}>USTA CHAQURISH</Text>
+          <Text style={styles.heroText}>USTA CHAQIRISH</Text>
+          <Text style={styles.heroHint}>Barcha ustalarga so'rov yuboriladi</Text>
         </Pressable>
 
         {/* Categories */}
@@ -95,9 +96,6 @@ export default function CustomerHomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Yaqin oradagi ustalar</Text>
-            <Pressable>
-              <Text style={styles.seeAll}>Barchasi</Text>
-            </Pressable>
           </View>
 
           {mastersLoading ? (
@@ -106,7 +104,11 @@ export default function CustomerHomeScreen() {
             <Text style={styles.emptyText}>Hozircha ustalar topilmadi</Text>
           ) : (
             (masters ?? []).map((master) => (
-              <View key={master.id} style={styles.masterCard}>
+              <Pressable
+                key={master.id}
+                style={({ pressed }) => [styles.masterCard, pressed && { opacity: 0.8 }]}
+                onPress={() => router.push({ pathname: "/(customer)/master/[id]", params: { id: master.id } })}
+              >
                 <Avatar uri={master.avatar_url} name={master.full_name} size={48} />
                 <View style={styles.masterInfo}>
                   <Text style={styles.masterName}>
@@ -131,7 +133,7 @@ export default function CustomerHomeScreen() {
                     )}
                   </View>
                 </View>
-              </View>
+              </Pressable>
             ))
           )}
         </View>
@@ -177,6 +179,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: colors.onPrimary,
     letterSpacing: 1,
+  },
+  heroHint: {
+    fontFamily: fonts.medium,
+    fontSize: 13,
+    color: colors.onPrimary,
+    opacity: 0.75,
   },
   section: {
     marginBottom: spacing[6],

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert, Image } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert, Image, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -163,7 +163,7 @@ export default function MasterOrderDetailScreen() {
               <Text style={styles.customerName}>{customer.full_name ?? "Mijoz"}</Text>
               <Text style={styles.customerPhone}>{customer.phone}</Text>
             </View>
-            <Pressable style={styles.iconBtn}>
+            <Pressable style={styles.iconBtn} onPress={() => customer?.phone && Linking.openURL(`tel:${customer.phone}`)}>
               <Ionicons name="call-outline" size={20} color={colors.primary} />
             </Pressable>
             <Pressable style={styles.iconBtnFilled}>

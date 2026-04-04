@@ -98,6 +98,34 @@ export async function uploadOrderPhotos(orderId: string, uris: string[]): Promis
   return urls;
 }
 
+// ─── Customer — My Orders ───────────────────────────────
+
+export async function fetchCustomerOrders(customerId: string) {
+  const { data, error } = await supabase
+    .from("orders")
+    .select(`
+      id, description, address, status, price_agreed, photo_urls, created_at, updated_at,
+      master:profiles!orders_master_id_fkey ( full_name, avatar_url, phone ),
+      category:service_categories!orders_category_id_fkey ( name_uz, icon_name )
+    `)
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+// ─── Customer — Cancel Order ────────────────────────────
+
+export async function cancelOrder(orderId: string) {
+  const { error } = await supabase
+    .from("orders")
+    .update({ status: "cancelled" })
+    .eq("id", orderId);
+
+  if (error) throw error;
+}
+
 // ─── Master — Pending Requests ───────────────────────────
 
 export async function fetchPendingRequests() {
