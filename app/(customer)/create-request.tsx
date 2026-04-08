@@ -110,11 +110,7 @@ export default function CreateRequestScreen() {
       queryClient.invalidateQueries({ queryKey: ["pending-requests"] });
       queryClient.invalidateQueries({ queryKey: ["customer-orders"] });
 
-      Alert.alert(
-        "So'rov yuborildi!",
-        "So'rovingiz barcha ustalarga yuborildi. Usta qabul qilganda sizga xabar beramiz."
-      );
-      router.replace("/(customer)/(tabs)/orders");
+      router.replace("/(customer)/request-success");
     } catch (err) {
       console.error("Order creation error:", err);
       Alert.alert("", t("error.generic"));

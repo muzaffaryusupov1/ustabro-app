@@ -1,9 +1,10 @@
-import { useEffect } from "react";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { View, StyleSheet } from "react-native";
 import { Slot, router, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import * as AppleSplashScreen from 'expo-splash-screen';
 import {
   useFonts,
   PlusJakartaSans_400Regular,
@@ -17,6 +18,9 @@ import { useAuthStore } from "../store/authStore";
 import { useI18nStore } from "../i18n";
 import { supabase } from "../lib/supabase";
 import { colors } from "../lib/theme";
+import { SplashScreen } from "../components/ui/SplashScreen";
+
+AppleSplashScreen.preventAutoHideAsync().catch(() => { });
 
 function AuthGate() {
   const { session, role, isLoading } = useAuthStore();
@@ -49,11 +53,7 @@ function AuthGate() {
   }, [session, role, isLoading, segments]);
 
   if (isLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <SplashScreen />;
   }
 
   return <Slot />;
@@ -61,6 +61,7 @@ function AuthGate() {
 
 export default function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
+  const [minSplashTimePassed, setMinSplashTimePassed] = useState(false);
 
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
@@ -73,6 +74,11 @@ export default function RootLayout() {
   useEffect(() => {
     initialize();
     useI18nStore.getState().initialize();
+
+    // Force splash screen to stay visible for at least 2 seconds
+    const timer = setTimeout(() => {
+      setMinSplashTimePassed(true);
+    }, 2000);
 
     const {
       data: { subscription },
@@ -95,15 +101,21 @@ export default function RootLayout() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timer);
+      subscription.unsubscribe();
+    };
   }, [initialize]);
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+  useEffect(() => {
+    if (fontsLoaded && minSplashTimePassed) {
+      // Hide the native splash screen when our custom layout and timeout are ready
+      AppleSplashScreen.hideAsync().catch(() => { });
+    }
+  }, [fontsLoaded, minSplashTimePassed]);
+
+  if (!fontsLoaded || !minSplashTimePassed) {
+    return <SplashScreen />;
   }
 
   return (
