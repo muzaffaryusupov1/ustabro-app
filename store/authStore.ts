@@ -22,6 +22,17 @@ interface AuthState {
   setProfile: (profile: Profile | null) => void;
   signOut: () => Promise<void>;
   initialize: () => Promise<void>;
+  syncSession: (session: Session | null) => Promise<void>;
+}
+
+async function fetchProfile(session: Session) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, phone, full_name, avatar_url, role")
+    .eq("id", session.user.id)
+    .single();
+
+  return profile ?? null;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -30,40 +41,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   role: null,
   isLoading: true,
 
-  setSession: (session) => set({ session }),
+  setSession: (session) => set({ session, isLoading: false }),
 
   setProfile: (profile) =>
     set({ profile, role: profile?.role ?? null }),
 
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ session: null, profile: null, role: null });
+    set({ session: null, profile: null, role: null, isLoading: false });
   },
 
   initialize: async () => {
+    set({ isLoading: true });
+
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, phone, full_name, avatar_url, role")
-          .eq("id", session.user.id)
-          .single();
-
-        set({
-          session,
-          profile: profile ?? null,
-          role: (profile?.role as Role) ?? null,
-          isLoading: false,
-        });
-      } else {
-        set({ session: null, profile: null, role: null, isLoading: false });
-      }
+      await get().syncSession(session);
     } catch {
-      set({ isLoading: false });
+      set({ session: null, profile: null, role: null, isLoading: false });
+    }
+  },
+
+  syncSession: async (session) => {
+    if (!session?.user) {
+      set({ session: null, profile: null, role: null, isLoading: false });
+      return;
+    }
+
+    try {
+      const profile = await fetchProfile(session);
+
+      set({
+        session,
+        profile,
+        role: (profile?.role as Role) ?? null,
+        isLoading: false,
+      });
+    } catch {
+      set({
+        session,
+        profile: null,
+        role: null,
+        isLoading: false,
+      });
     }
   },
 }));

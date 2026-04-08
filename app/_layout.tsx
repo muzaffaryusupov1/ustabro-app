@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
 import { Slot, router, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as AppleSplashScreen from 'expo-splash-screen';
+import * as NativeSplashScreen from "expo-splash-screen";
 import {
   useFonts,
   PlusJakartaSans_400Regular,
@@ -17,10 +16,12 @@ import { queryClient } from "../lib/queryClient";
 import { useAuthStore } from "../store/authStore";
 import { useI18nStore } from "../i18n";
 import { supabase } from "../lib/supabase";
-import { colors } from "../lib/theme";
-import { SplashScreen } from "../components/ui/SplashScreen";
 
-AppleSplashScreen.preventAutoHideAsync().catch(() => { });
+NativeSplashScreen.preventAutoHideAsync().catch(() => {});
+NativeSplashScreen.setOptions({
+  duration: 250,
+  fade: true,
+});
 
 function AuthGate() {
   const { session, role, isLoading } = useAuthStore();
@@ -53,7 +54,7 @@ function AuthGate() {
   }, [session, role, isLoading, segments]);
 
   if (isLoading) {
-    return <SplashScreen />;
+    return null;
   }
 
   return <Slot />;
@@ -61,7 +62,9 @@ function AuthGate() {
 
 export default function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
-  const [minSplashTimePassed, setMinSplashTimePassed] = useState(false);
+  const syncSession = useAuthStore((s) => s.syncSession);
+  const isAuthLoading = useAuthStore((s) => s.isLoading);
+  const [nativeSplashHidden, setNativeSplashHidden] = useState(false);
 
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
@@ -72,50 +75,45 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    initialize();
+    void initialize();
     useI18nStore.getState().initialize();
-
-    // Force splash screen to stay visible for at least 2 seconds
-    const timer = setTimeout(() => {
-      setMinSplashTimePassed(true);
-    }, 2000);
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        // Fetch profile alongside session to avoid role=null flash
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, phone, full_name, avatar_url, role")
-          .eq("id", session.user.id)
-          .single();
-
-        useAuthStore.setState({
-          session,
-          profile: profile ?? null,
-          role: (profile?.role as "customer" | "master" | null) ?? null,
-        });
-      } else {
-        useAuthStore.setState({ session: null, profile: null, role: null });
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") {
+        return;
       }
+
+      if (event === "TOKEN_REFRESHED") {
+        useAuthStore.getState().setSession(session);
+        return;
+      }
+
+      void syncSession(session);
     });
 
     return () => {
-      clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [initialize]);
+  }, [initialize, syncSession]);
+
+  const appReady = fontsLoaded && !isAuthLoading;
 
   useEffect(() => {
-    if (fontsLoaded && minSplashTimePassed) {
-      // Hide the native splash screen when our custom layout and timeout are ready
-      AppleSplashScreen.hideAsync().catch(() => { });
+    if (!appReady || nativeSplashHidden) {
+      return;
     }
-  }, [fontsLoaded, minSplashTimePassed]);
 
-  if (!fontsLoaded || !minSplashTimePassed) {
-    return <SplashScreen />;
+    NativeSplashScreen.hideAsync()
+      .catch(() => {})
+      .finally(() => {
+        setNativeSplashHidden(true);
+      });
+  }, [appReady, nativeSplashHidden]);
+
+  if (!appReady) {
+    return null;
   }
 
   return (
@@ -127,12 +125,3 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.surface,
-  },
-});

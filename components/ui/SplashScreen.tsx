@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { colors, fonts, spacing, radii } from "../../lib/theme";
+import { colors, spacing, radii } from "../../lib/theme";
 
 export function SplashScreen() {
   return (
@@ -27,8 +27,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: spacing[6],
   },
   content: {
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -42,14 +44,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing[6],
   },
   brandTitle: {
-    fontFamily: fonts.extraBold,
     fontSize: 32,
+    fontWeight: "800",
+    lineHeight: 38,
     color: colors.onSurface,
     marginBottom: spacing[2],
+    textAlign: "center",
   },
   subtitle: {
-    fontFamily: fonts.regular,
     fontSize: 16,
+    lineHeight: 22,
     color: colors.onSurfaceMuted,
+    textAlign: "center",
   },
 });
