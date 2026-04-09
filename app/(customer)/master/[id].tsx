@@ -15,6 +15,8 @@ import { colors, fonts, spacing, radii, shadows } from "../../../lib/theme";
 import { Avatar } from "../../../components/ui/Avatar";
 import { Button } from "../../../components/ui/Button";
 import { supabase } from "../../../lib/supabase";
+import { useTranslation } from "../../../hooks/useTranslation";
+import { formatPhoneNumber } from "../../../lib/utils";
 
 function useMasterPublicProfile(masterId: string | undefined) {
   return useQuery({
@@ -42,6 +44,7 @@ function useMasterPublicProfile(masterId: string | undefined) {
 export default function MasterPublicProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: master, isLoading } = useMasterPublicProfile(id);
+  const { t } = useTranslation()
 
   const mp = (master as any)?.master_profiles as any;
 
@@ -73,7 +76,7 @@ export default function MasterPublicProfileScreen() {
           </Pressable>
         </View>
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>Usta topilmadi</Text>
+          <Text style={styles.emptyText}>{t("master.notFound")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -88,22 +91,22 @@ export default function MasterPublicProfileScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>Usta haqida</Text>
+        <Text style={styles.headerTitle}>{t("master.profile")}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Profile */}
         <View style={styles.profileSection}>
           <Avatar uri={master.avatar_url} name={master.full_name} size={80} />
-          <Text style={styles.name}>{master.full_name ?? "Usta"}</Text>
+          <Text style={styles.name}>{master.full_name ?? t("unknown.master")}</Text>
 
           {mp?.is_available ? (
             <View style={styles.availBadge}>
               <View style={styles.availDot} />
-              <Text style={styles.availText}>Tayyor</Text>
+              <Text style={styles.availText}>{t("master.available")}</Text>
             </View>
           ) : (
-            <Text style={styles.busyText}>Band</Text>
+            <Text style={styles.busyText}>{t("master.busy")}</Text>
           )}
 
           {/* Stats */}
@@ -113,17 +116,17 @@ export default function MasterPublicProfileScreen() {
                 <Ionicons name="star" size={18} color="#F59E0B" />
                 <Text style={styles.statValue}>{rating.toFixed(1)}</Text>
               </View>
-              <Text style={styles.statLabel}>REYTING</Text>
+              <Text style={styles.statLabel}>{t("rating")}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statValue}>{reviewCount}</Text>
-              <Text style={styles.statLabel}>BAHOLAR</Text>
+              <Text style={styles.statLabel}>{t("reviews")}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statValue}>{mp?.experience_years ?? 0}</Text>
-              <Text style={styles.statLabel}>YIL TAJRIBA</Text>
+              <Text style={styles.statLabel}>{t("experience")}</Text>
             </View>
           </View>
         </View>
@@ -131,7 +134,7 @@ export default function MasterPublicProfileScreen() {
         {/* Bio */}
         {mp?.bio && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>Haqida</Text>
+            <Text style={styles.cardLabel}>{t("about.master")}</Text>
             <Text style={styles.cardText}>{mp.bio}</Text>
           </View>
         )}
@@ -139,7 +142,7 @@ export default function MasterPublicProfileScreen() {
         {/* Skills */}
         {mp?.skills && mp.skills.length > 0 && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>Mutaxassisligi</Text>
+            <Text style={styles.cardLabel}>{t("skills")}</Text>
             <View style={styles.chipRow}>
               {mp.skills.map((skill: string) => (
                 <View key={skill} style={styles.chip}>
@@ -152,16 +155,17 @@ export default function MasterPublicProfileScreen() {
 
         {/* Phone */}
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>Telefon</Text>
-          <Text style={styles.cardText}>{master.phone}</Text>
+          <Text style={styles.cardLabel}>{t("phone")}</Text>
+          <Text style={styles.cardText}>{formatPhoneNumber(master.phone)}</Text>
         </View>
       </ScrollView>
 
       {/* Call button */}
       <View style={styles.bottomFixed}>
         <Button
-          title="Qo'ng'iroq qilish"
+          title={t("master.call")}
           onPress={handleCall}
+          icon={<Ionicons name="call" size={20} color={colors.onPrimary} />}
         />
       </View>
     </SafeAreaView>

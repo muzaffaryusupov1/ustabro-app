@@ -147,4 +147,18 @@ export const uz: Record<string, string> = {
   "general.loading": "Yuklanmoqda...",
   "general.yes": "Ha",
   "general.no": "Yo'q",
+
+  // Master
+  "master.profile": "Usta profili",
+  "master.call": "Qo'ng'iroq qilish",
+  "master.notFound": "Usta topilmadi",
+  "unknown.master": "Noma'lum usta",
+  "master.available": "Tayyor",
+  "master.busy": "Band",
+  "rating": "Reyting",
+  "reviews": "Baholar",
+  "experience": "Tajriba",
+  "about.master": "Usta haqida",
+  "skills": "Mutaxassisligi",
+  "phone": "Telefons",
 };

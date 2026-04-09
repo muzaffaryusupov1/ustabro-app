@@ -16,6 +16,8 @@ interface ButtonProps extends PressableProps {
   variant?: ButtonVariant;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
+  icon?: React.ReactNode;
+  iconPosition?: "left" | "right";
 }
 
 const VARIANTS = {
@@ -30,6 +32,8 @@ export function Button({
   loading = false,
   disabled,
   style,
+  icon,
+  iconPosition = "right",
   ...rest
 }: ButtonProps) {
   const v = VARIANTS[variant];
@@ -43,16 +47,21 @@ export function Button({
         {
           backgroundColor: pressed ? v.pressed : v.bg,
           opacity: isDisabled ? 0.5 : 1,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 8,
         },
         style,
       ]}
       {...rest}
     >
+      {iconPosition === "left" && icon}
       {loading ? (
         <ActivityIndicator color={v.text} />
       ) : (
         <Text style={[styles.text, { color: v.text }]}>{title}</Text>
       )}
+      {iconPosition === "right" && icon}
     </Pressable>
   );
 }

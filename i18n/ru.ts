@@ -147,4 +147,18 @@ export const ru: Record<string, string> = {
 	'language.title': 'Til / Язык',
 	'language.uz': "O'zbekcha",
 	'language.ru': 'Русский',
+
+	// Master
+	'master.profile': 'Профиль мастера',
+	'master.call': 'Позвонить',
+	'master.notFound': 'Мастер не найден',
+	'unknown.master': 'Неизвестный мастер',
+	'master.available': 'Готов',
+	'master.busy': 'Занят',
+	'rating': 'Рейтинг',
+	'reviews': 'Отзывы',
+	'experience': 'Опыт',
+	'about.master': 'О мастере',
+	'skills': 'Специализация',
+	'phone': 'Телефон',
 };

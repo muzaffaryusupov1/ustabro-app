@@ -18,6 +18,9 @@ import { useOrder } from '../../../hooks/useOrder';
 import { queryClient } from '../../../lib/queryClient';
 import { colors, fonts, radii, shadows, spacing } from '../../../lib/theme';
 import { cancelOrder } from '../../../services/orders';
+import ReviewBottomSheet from '../ReviewBottomSheet';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { useRef } from 'react';
 
 const STATUS_STEPS = [
 	{ key: 'pending', label: 'Kutilmoqda', icon: 'time-outline' as const },
@@ -48,6 +51,7 @@ const STATUS_ICONS: Record<string, React.ComponentProps<typeof Ionicons>['name']
 export default function CustomerOrderDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const { data: order, isLoading } = useOrder(id);
+	const bottomSheetRef = useRef<BottomSheet>(null);
 
 	const currentStatus = order?.status ?? 'pending';
 	const master = order?.master as any;
@@ -57,6 +61,10 @@ export default function CustomerOrderDetailScreen() {
 	const canCancel = currentStatus === 'pending';
 
 	const stepIndex = STATUS_STEPS.findIndex(s => s.key === currentStatus);
+
+	const handleOpenBottomSheet = () => {
+		bottomSheetRef.current?.expand();
+	};
 
 	const handleCancel = () => {
 		if (!id) return;
@@ -181,14 +189,17 @@ export default function CustomerOrderDetailScreen() {
 				{/* Master info (when assigned) */}
 				{master && (
 					<View style={styles.masterCard}>
-						<Avatar uri={master.avatar_url} name={master.full_name} size={48} />
-						<View style={styles.masterInfo}>
-							<Text style={styles.masterName}>{master.full_name ?? 'Usta'}</Text>
-							<Text style={styles.masterPhone}>{master.phone}</Text>
+						<View style={styles.masterInfoContainer}>
+							<Avatar uri={master.avatar_url} name={master.full_name} size={48} />
+							<View style={styles.masterInfo}>
+								<Text style={styles.masterName}>{master.full_name ?? 'Usta'}</Text>
+								<Text style={styles.masterPhone}>{master.phone}</Text>
+								<Text style={styles.masterPhone}>{master.rating}</Text>
+							</View>
 						</View>
-						<Pressable style={styles.callBtn} onPress={handleCall}>
-							<Ionicons name='call-outline' size={20} color={colors.primary} />
-						</Pressable>
+						<View>
+							<Button title="Qo'ng'iroq qilish" onPress={handleCall} icon={<Ionicons name='call-outline' size={20} color={colors.primary} />} />
+						</View>
 					</View>
 				)}
 
@@ -199,6 +210,12 @@ export default function CustomerOrderDetailScreen() {
 						<Text style={styles.waitingText}>Usta hali topilmagan. Kutib turing...</Text>
 					</View>
 				)}
+
+				{isCompleted && (
+					<View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] }}>
+						<Button title='Izohni qoldirish' onPress={handleOpenBottomSheet} />
+					</View>
+				)}
 			</ScrollView>
 
 			{/* Cancel button (only for pending) */}
@@ -207,6 +224,9 @@ export default function CustomerOrderDetailScreen() {
 					<Button title='Bekor qilish' variant='secondary' onPress={handleCancel} />
 				</View>
 			)}
+
+
+			<ReviewBottomSheet bottomSheetRef={bottomSheetRef as any} />
 		</SafeAreaView>
 	);
 }
@@ -305,14 +325,17 @@ const styles = StyleSheet.create({
 		lineHeight: 22,
 	},
 	masterCard: {
-		flexDirection: 'row',
-		alignItems: 'center',
+		flexDirection: 'column',
 		marginHorizontal: spacing[6],
 		backgroundColor: colors.surfaceContainerLowest,
 		borderRadius: radii.xl,
 		padding: spacing[4],
 		gap: spacing[3],
 		...shadows.ambient,
+	},
+	masterInfoContainer: {
+		flexDirection: 'row',
+		gap: spacing[3],
 	},
 	masterInfo: { flex: 1, gap: 2 },
 	masterName: { fontFamily: fonts.semiBold, fontSize: 15, color: colors.onSurface },
