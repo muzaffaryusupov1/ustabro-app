@@ -119,6 +119,10 @@ export const ru: Record<string, string> = {
 	'review.placeholder': 'Оставьте комментарий (необязательно)',
 	'review.submit': 'Отправить',
 	'review.submitted': 'Ваша оценка принята',
+	'review.rating_required': 'Пожалуйста, поставьте оценку',
+	'review.no_reviews': 'Отзывов пока нет',
+	'review.leave': 'Оставить отзыв',
+	'review.already_rated': 'Вы поставили {rating} звёзд',
 
 	// Chat
 	'chat.placeholder': 'Напишите сообщение...',

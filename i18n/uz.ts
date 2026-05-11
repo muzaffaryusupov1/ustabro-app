@@ -119,6 +119,10 @@ export const uz: Record<string, string> = {
   "review.placeholder": "Izoh qoldiring (ixtiyoriy)",
   "review.submit": "Yuborish",
   "review.submitted": "Bahoyingiz qabul qilindi",
+  "review.rating_required": "Iltimos, yulduz bering",
+  "review.no_reviews": "Hali baholar yo'q",
+  "review.leave": "Izoh qoldirish",
+  "review.already_rated": "Siz {rating} yulduz berdingiz",
 
   // Chat
   "chat.placeholder": "Xabar yozing...",

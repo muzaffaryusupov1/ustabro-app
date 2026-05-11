@@ -158,6 +158,7 @@ export default function MasterPublicProfileScreen() {
           <Text style={styles.cardLabel}>{t("phone")}</Text>
           <Text style={styles.cardText}>{formatPhoneNumber(master.phone)}</Text>
         </View>
+
       </ScrollView>
 
       {/* Call button */}
@@ -298,3 +299,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
 });
+

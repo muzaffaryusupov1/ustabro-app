@@ -15,9 +15,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { useOrder } from '../../../hooks/useOrder';
+import { useOrderReview } from '../../../hooks/useReviews';
 import { queryClient } from '../../../lib/queryClient';
 import { colors, fonts, radii, shadows, spacing } from '../../../lib/theme';
 import { cancelOrder } from '../../../services/orders';
+import { useAuthStore } from '../../../store/authStore';
 import ReviewBottomSheet from '../ReviewBottomSheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRef } from 'react';
@@ -51,6 +53,8 @@ const STATUS_ICONS: Record<string, React.ComponentProps<typeof Ionicons>['name']
 export default function CustomerOrderDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const { data: order, isLoading } = useOrder(id);
+	const { data: existingReview } = useOrderReview(id);
+	const { profile } = useAuthStore();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 
 	const currentStatus = order?.status ?? 'pending';
@@ -59,6 +63,7 @@ export default function CustomerOrderDetailScreen() {
 	const isCancelled = currentStatus === 'cancelled';
 	const isCompleted = currentStatus === 'completed';
 	const canCancel = currentStatus === 'pending';
+	const alreadyReviewed = !!existingReview;
 
 	const stepIndex = STATUS_STEPS.findIndex(s => s.key === currentStatus);
 
@@ -211,9 +216,17 @@ export default function CustomerOrderDetailScreen() {
 					</View>
 				)}
 
-				{isCompleted && (
+				{isCompleted && !alreadyReviewed && (
 					<View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] }}>
 						<Button title='Izohni qoldirish' onPress={handleOpenBottomSheet} />
+					</View>
+				)}
+				{isCompleted && alreadyReviewed && (
+					<View style={styles.reviewedBadge}>
+						<Ionicons name='star' size={16} color={colors.primary} />
+						<Text style={styles.reviewedText}>
+							Siz {existingReview.rating} yulduz berdingiz
+						</Text>
 					</View>
 				)}
 			</ScrollView>
@@ -226,7 +239,12 @@ export default function CustomerOrderDetailScreen() {
 			)}
 
 
-			<ReviewBottomSheet bottomSheetRef={bottomSheetRef as any} />
+			<ReviewBottomSheet
+				bottomSheetRef={bottomSheetRef as any}
+				orderId={id ?? ''}
+				masterId={master?.id ?? ''}
+				customerId={profile?.id ?? ''}
+			/>
 		</SafeAreaView>
 	);
 }
@@ -363,6 +381,23 @@ const styles = StyleSheet.create({
 		fontFamily: fonts.medium,
 		fontSize: 14,
 		color: colors.onSurfaceMuted,
+	},
+	reviewedBadge: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: spacing[2],
+		marginHorizontal: spacing[6],
+		marginTop: spacing[6],
+		backgroundColor: colors.surfaceContainerLowest,
+		borderRadius: radii.xl,
+		padding: spacing[4],
+		...shadows.ambient,
+	},
+	reviewedText: {
+		fontFamily: fonts.semiBold,
+		fontSize: 14,
+		color: colors.primary,
 	},
 	bottomFixed: {
 		position: 'absolute',

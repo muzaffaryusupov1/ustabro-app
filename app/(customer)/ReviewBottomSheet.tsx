@@ -1,21 +1,24 @@
 import { View, Text, StyleSheet, Alert } from 'react-native'
-import React, { useRef } from 'react'
+import React, { useMemo } from 'react'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetBackdropProps, BottomSheetScrollView, BottomSheetTextInput, BottomSheetView } from '@gorhom/bottom-sheet'
 import StarRating from 'react-native-star-rating-widget'
-import { colors, radii, spacing } from '../../lib/theme'
-import { useMemo } from 'react'
-import { TextInput } from 'react-native-gesture-handler'
+import { colors, fonts, radii, spacing } from '../../lib/theme'
 import { Button } from '../../components/ui'
 import { Ionicons } from '@expo/vector-icons'
+import { useCreateReview } from '../../hooks/useReviews'
 
 interface ReviewBottomSheetProps {
     bottomSheetRef: React.RefObject<BottomSheet>;
+    orderId: string;
+    masterId: string;
+    customerId: string;
 }
 
-const ReviewBottomSheet = ({ bottomSheetRef }: ReviewBottomSheetProps) => {
+const ReviewBottomSheet = ({ bottomSheetRef, orderId, masterId, customerId }: ReviewBottomSheetProps) => {
     const [rating, setRating] = React.useState(0)
+    const [comment, setComment] = React.useState('')
     const snapPoints = useMemo(() => ['60%'], []);
-    const [review, setReview] = React.useState('')
+    const { mutateAsync, isPending } = useCreateReview();
 
     const renderBackdrop = React.useCallback(
         (props: BottomSheetBackdropProps) => (
@@ -24,15 +27,30 @@ const ReviewBottomSheet = ({ bottomSheetRef }: ReviewBottomSheetProps) => {
         [],
     );
 
-    const handleSubmit = () => {
-        console.log(rating, review);
-        Alert.alert('Muvaffaqiyatli', `${rating} yulduz va ${review} fikr yuborildi`);
-        handleClear();
+    const handleSubmit = async () => {
+        if (rating === 0) {
+            Alert.alert('', 'Iltimos, yulduz bering');
+            return;
+        }
+
+        try {
+            await mutateAsync({
+                order_id: orderId,
+                customer_id: customerId,
+                master_id: masterId,
+                rating,
+                comment: comment.trim() || undefined,
+            });
+            handleClear();
+            Alert.alert('', 'Bahoyingiz qabul qilindi');
+        } catch {
+            Alert.alert('', 'Xatolik yuz berdi. Qayta urinib ko\'ring.');
+        }
     }
 
     const handleClear = () => {
         setRating(0);
-        setReview('');
+        setComment('');
         bottomSheetRef.current?.close();
     }
 
@@ -58,18 +76,24 @@ const ReviewBottomSheet = ({ bottomSheetRef }: ReviewBottomSheetProps) => {
                         <View style={{ flex: 1 }}>
                             <BottomSheetTextInput
                                 placeholder='Fikringizni yozing...'
-                                value={review}
-                                onChangeText={setReview}
+                                value={comment}
+                                onChangeText={setComment}
                                 style={styles.textArea}
                                 multiline
                                 numberOfLines={4}
-                                autoFocus={true}
+                                textAlignVertical='top'
                             />
                         </View>
                     </View>
                 </BottomSheetScrollView>
                 <View style={{ marginTop: spacing[6], width: '100%' }}>
-                    <Button title='Yuborish' onPress={handleSubmit} style={styles.submitButton} icon={<Ionicons name='send-outline' size={18} color={colors.onPrimary} />} />
+                    <Button
+                        title='Yuborish'
+                        onPress={handleSubmit}
+                        loading={isPending}
+                        style={styles.submitButton}
+                        icon={<Ionicons name='send-outline' size={18} color={colors.onPrimary} />}
+                    />
                 </View>
             </BottomSheetView>
         </BottomSheet>
@@ -94,16 +118,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
+        fontFamily: fonts.bold,
         fontSize: 24,
-        fontWeight: 'bold',
-        color: "#000",
+        color: colors.onSurface,
         textAlign: 'center',
     },
     question: {
+        fontFamily: fonts.medium,
         fontSize: 16,
-        fontWeight: '500',
-        color: "#000",
+        color: colors.onSurfaceVariant,
         textAlign: 'center',
+        marginTop: spacing[2],
     },
     textArea: {
         backgroundColor: colors.surfaceContainerHigh,
@@ -111,9 +136,10 @@ const styles = StyleSheet.create({
         padding: spacing[4],
         marginTop: spacing[6],
         width: '100%',
-        borderWidth: 0,
         height: 100,
-        textAlignVertical: 'top',
+        fontFamily: fonts.regular,
+        fontSize: 15,
+        color: colors.onSurface,
     },
     submitButton: {
         borderRadius: radii.md,
